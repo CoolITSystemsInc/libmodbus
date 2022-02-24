@@ -1,0 +1,40 @@
+name: Build C/C++ CI
+
+on:
+  push:
+    branches:
+      - main
+      - cicd
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-libmodbus:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up cross-compiler
+      run: |
+        wget https://musl.cc/arm-linux-musleabihf-cross.tgz
+        tar -zxf arm-linux-musleabihf-cross.tgz
+        sudo cp -r arm-linux-musleabihf-cross/* /usr/
+
+    - name: Compile libmodbus
+      run: |
+        chmod +x *
+        ./autogen.sh
+        mkdir -p library
+        
+        ./configure ac_cv_func_malloc_0_nonnull=yes --host=arm-linux-musleabihf --prefix=/usr/arm-linux-musleabihf/ 
+        sudo make install
+    
+    - name: Upload libmodbus.so
+      uses: actions/upload-artifact@v2
+      with:
+        name: libmodbus
+        path: |
+          /usr/arm-linux-musleabihf/lib/libmodbus.so*
+          /usr/arm-linux-musleabihf/include/modbus*
