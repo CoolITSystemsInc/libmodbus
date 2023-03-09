@@ -15,6 +15,12 @@ on:
 jobs:
   build-libmodbus:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        arch:
+          - armv7l
+          - arm
 
     steps:
     - uses: actions/checkout@v2
@@ -26,27 +32,26 @@ jobs:
         github_token: ${{ secrets.ACTIONS_AUTH }}        
         workflow: musl-artifact.yaml
         workflow_conclusion: success
-        name: arm-linux-musleabihf-cross
+        name: ${{ matrix.arch }}-linux-musleabihf-cross
         path: .
 
     - name: Copy cross-compiler to usr folder
       run: |
-        tar -xvf arm-linux-musleabihf-cross.tgz
-        sudo cp -r ./arm-linux-musleabihf-cross/* /usr/
+        tar -xvf ${{ matrix.arch }}-linux-musleabihf-cross.tgz
+        sudo cp -r ./${{ matrix.arch }}-linux-musleabihf-cross/* /usr/
 
     - name: Compile libmodbus
       run: |
         chmod +x *
         ./autogen.sh
         mkdir -p library
-        
-        ./configure ac_cv_func_malloc_0_nonnull=yes --host=arm-linux-musleabihf --prefix=/usr/arm-linux-musleabihf/ 
+        ./configure ac_cv_func_malloc_0_nonnull=yes --host=${{ matrix.arch }}-linux-musleabihf --prefix=/usr/${{ matrix.arch }}-linux-musleabihf/ 
         sudo make install
     
     - name: Upload libmodbus.so
       uses: actions/upload-artifact@v2
       with:
-        name: libmodbus
+        name: libmodbus-${{ matrix.arch }}
         path: |
-          /usr/arm-linux-musleabihf/lib/libmodbus.so*
-          /usr/arm-linux-musleabihf/include/modbus*
+          /usr/${{ matrix.arch }}-linux-musleabihf/lib/libmodbus.so*
+          /usr/${{ matrix.arch }}-linux-musleabihf/include/modbus*
