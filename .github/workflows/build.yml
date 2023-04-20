@@ -60,10 +60,9 @@ jobs:
         echo "license=$(awk 'FNR <= 2 {gsub(/^[ \t]+|[ \t]+$/, " "); printf $0}' COPYING.LESSER)" >> $GITHUB_OUTPUT
     
     - name: Generate binary hash
-      uses: MCJack123/ghaction-Generate-Release-Hashes@v4
-      with:
-        hash-type: sha256
-        file-name: bin-hash.txt
+      run: |
+        sha256sum /usr/arm-linux-musleabihf/lib/libmodbus.so* > bin-hash.txt
+        sha256sum /usr/arm-linux-musleabihf/include/modbus* >> bin-hash.txt
     
     - name: Compile information into text file
       run: |
