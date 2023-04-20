@@ -62,7 +62,7 @@ jobs:
     - name: Generate binary hash
       run: |
         sha256sum /usr/arm-linux-musleabihf/lib/libmodbus.so* > bin-hash.txt
-        sha256sum /usr/arm-linux-musleabihf/include/modbus* >> bin-hash.txt
+        sha256sum /usr/arm-linux-musleabihf/include/modbus/modbus* >> bin-hash.txt
     
     - name: Compile information into text file
       run: |
