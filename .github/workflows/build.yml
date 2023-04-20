@@ -57,7 +57,7 @@ jobs:
     - name: Get license
       id: commitlicense
       run: |
-        echo "license=$(head -2 COPYING.LESSER)" >> $GITHUB_OUTPUT
+        echo "license=$(awk 'FNR <= 2 {gsub(/^[ \t]+|[ \t]+$/, " "); printf $0}' COPYING.LESSER)" >> $GITHUB_OUTPUT
     
     - name: Generate binary hash
       uses: MCJack123/ghaction-Generate-Release-Hashes@v4
