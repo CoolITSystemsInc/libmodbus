@@ -43,10 +43,41 @@ jobs:
         ./configure ac_cv_func_malloc_0_nonnull=yes --host=arm-linux-musleabihf --prefix=/usr/arm-linux-musleabihf/ 
         sudo make install
     
+    - name: Get git tag version
+      id: commitversion
+      run: |
+        git fetch --prune --unshallow --tags
+        echo "version=$(git describe --tags --always)" >> $GITHUB_OUTPUT
+         
+    - name: Get last commit time
+      id: committime
+      run: |
+        echo "time=$(git show -s --format=%ci ${{ GITHUB_SHA }})" >> $GITHUB_OUTPUT
+    
+    - name: Get license
+      id: commitlicense
+      run: |
+        echo "license=$(head -2 COPYING.LESSER)" >> $GITHUB_OUTPUT
+    
+    - name: Generate binary hash
+      uses: MCJack123/ghaction-Generate-Release-Hashes@v4
+      with:
+        hash-type: sha256
+        file-name: bin-hash.txt
+    
+    - name: Compile information into text file
+      run: |
+        echo "$${{ GITHUB_REPOSITORY }}" >> repo-info.txt
+        echo "$${{ steps.commitversion.outputs.version }}" >> repo-info.txt
+        echo "$${{ steps.committime.outputs.time }}" >> repo-info.txt
+        echo "$${{ steps.commitlicense.outputs.license }}" >> repo-info.txt
+    
     - name: Upload libmodbus.so
       uses: actions/upload-artifact@v2
       with:
         name: libmodbus
         path: |
+          /usr/repo-info.txt
+          /usr/bin-hash.txt
           /usr/arm-linux-musleabihf/lib/libmodbus.so*
           /usr/arm-linux-musleabihf/include/modbus*
