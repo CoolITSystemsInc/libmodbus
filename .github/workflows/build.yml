@@ -67,9 +67,9 @@ jobs:
     - name: Compile information into text file
       run: |
         echo "$GITHUB_REPOSITORY" | tee -a repo-info.txt
-        echo "$${{ steps.commitversion.outputs.version }}" | tee -a repo-info.txt
-        echo "$${{ steps.committime.outputs.time }}" | tee -a repo-info.txt
-        echo "$${{ steps.commitlicense.outputs.license }}" | tee -a repo-info.txt
+        echo "${{ steps.commitversion.outputs.version }}" | tee -a repo-info.txt
+        echo "${{ steps.committime.outputs.time }}" | tee -a repo-info.txt
+        echo "${{ steps.commitlicense.outputs.license }}" | tee -a repo-info.txt
     
     - name: Upload libmodbus.so
       uses: actions/upload-artifact@v2
