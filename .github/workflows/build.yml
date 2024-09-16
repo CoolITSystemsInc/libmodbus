@@ -4,12 +4,9 @@ on:
   push:
     branches:
       - master
-      - cicd
   pull_request:
     branches:
       - master
-  schedule:
-      - cron: "0 9 * * 0"
   workflow_dispatch:
 
 jobs:
@@ -17,16 +14,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up cross-compiler
-      uses: dawidd6/action-download-artifact@v2
+      uses: dawidd6/action-download-artifact@v6
       with:
         repo: coolitsystemsinc/cdu-build
         github_token: ${{ secrets.ACTIONS_AUTH }}        
         workflow: musl-artifact.yaml
         workflow_conclusion: success
         name: arm-linux-musleabihf-cross
+        allow_forks: true
         path: .
 
     - name: Copy cross-compiler to usr folder
@@ -44,7 +42,7 @@ jobs:
         sudo make install
     
     - name: Upload libmodbus.so
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: libmodbus
         path: |
