@@ -11,12 +11,12 @@ on:
 
 jobs:
   build-libmodbus:
-  name: Run cross-compiler download and verification for each architecture
+    name: Run cross-compiler download and verification for each architecture
     strategy:
       matrix:
         arch:
-           - arm-linux-musleabihf
-           #- aarch64-linux-musl
+          - arm-linux-musleabihf
+          #- aarch64-linux-musl
 
     runs-on: ubuntu-latest
 
