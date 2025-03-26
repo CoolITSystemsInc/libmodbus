@@ -11,26 +11,33 @@ on:
 
 jobs:
   build-libmodbus:
+    name: Run cross-compiler download and verification for each architecture
+    strategy:
+      matrix:
+        arch:
+          - arm-linux-musleabihf
+          - aarch64-linux-musl
+
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up cross-compiler
-      uses: dawidd6/action-download-artifact@v6
+    
+    - name: Download musl-cross-compiler library from release
+      id: musl-cross-compiler
+      uses: robinraju/release-downloader@v1.8
       with:
-        repo: coolitsystemsinc/cdu-build
-        github_token: ${{ secrets.ACTIONS_AUTH }}        
-        workflow: musl-artifact.yaml
-        workflow_conclusion: success
-        name: arm-linux-musleabihf-cross
-        allow_forks: true
-        path: .
-
+        repository: coolitsystemsinc/cdu-lib
+        latest: true
+        token: ${{ secrets.ACTIONS_AUTH }}
+        fileName: "${{ matrix.arch }}-cross.tgz"
+        extract: false
+        out-file-path: .
+        
     - name: Copy cross-compiler to usr folder
       run: |
-        tar -xvf arm-linux-musleabihf-cross.tgz
-        sudo cp -r ./arm-linux-musleabihf-cross/* /usr/
+        tar -xvf ${{ matrix.arch }}-cross.tgz
+        sudo cp -r ./${{ matrix.arch }}-cross/* /usr/
 
     - name: Compile libmodbus
       run: |
@@ -38,13 +45,13 @@ jobs:
         ./autogen.sh
         mkdir -p library
         
-        ./configure ac_cv_func_malloc_0_nonnull=yes --host=arm-linux-musleabihf --prefix=/usr/arm-linux-musleabihf/ 
+        ./configure ac_cv_func_malloc_0_nonnull=yes --host=${{ matrix.arch }} --prefix=/usr/${{ matrix.arch }}/ 
         sudo make install
     
     - name: Upload libmodbus.so
       uses: actions/upload-artifact@v4
       with:
-        name: libmodbus
+        name: libmodbus${{ matrix.arch == 'aarch64-linux-musl' && '-64' || '' }}
         path: |
-          /usr/arm-linux-musleabihf/lib/libmodbus.so*
-          /usr/arm-linux-musleabihf/include/modbus*
+          /usr/${{ matrix.arch }}/lib/libmodbus.so*
+          /usr/${{ matrix.arch }}/include/modbus*
