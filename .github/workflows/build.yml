@@ -51,7 +51,7 @@ jobs:
     - name: Upload libmodbus.so
       uses: actions/upload-artifact@v4
       with:
-        name: libmodbus${{ matrix.arch == 'aarch64-linux-musl' && '-64' || '' }}
+        name: libmodbus-${{ matrix.arch }}
         path: |
           /usr/${{ matrix.arch }}/lib/libmodbus.so*
           /usr/${{ matrix.arch }}/include/modbus*
