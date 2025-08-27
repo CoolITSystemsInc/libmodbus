@@ -21,6 +21,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    
+    - name: Generate GitHub App Token
+      id: app_token
+      uses: tibdex/github-app-token@v2
+      with:
+        app_id: ${{ secrets.APP_ID }}
+        private_key: ${{ secrets.APP_PRIVATE_KEY }}
+        
     - uses: actions/checkout@v4
     
     - name: Download musl-cross-compiler library from release
@@ -29,7 +37,7 @@ jobs:
       with:
         repository: coolitsystemsinc/cdu-lib
         latest: true
-        token: ${{ secrets.ACTIONS_AUTH }}
+        token: ${{ steps.app_token.outputs.token }}
         fileName: "${{ matrix.arch }}-cross.tgz"
         extract: false
         out-file-path: .
